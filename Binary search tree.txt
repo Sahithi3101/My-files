@@ -1,0 +1,27 @@
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+def is_valid_bst(root, low=float('-inf'), high=float('inf')):
+    if not root:
+        return True
+
+    # Current node must be within (low, high)
+    if not (low < root.val < high):
+        return False
+
+    # Left subtree must be less than root.val
+    # Right subtree must be greater than root.val
+    return (is_valid_bst(root.left, low, root.val) and
+            is_valid_bst(root.right, root.val, high))
+
+# Example: Valid BST
+root = TreeNode(10)
+root.left = TreeNode(5)
+root.right = TreeNode(15)
+root.right.left = TreeNode(11)
+root.right.right = TreeNode(20)
+
+print("Is valid BST?", is_valid_bst(root))  # Output: True
