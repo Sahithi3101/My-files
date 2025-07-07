@@ -1,0 +1,70 @@
+#A RESTful API for a To-Do List application
+
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+# Dummy in-memory data store
+tasks = [
+    {"id": 1, "title": "Buy groceries", "done": False},
+    {"id": 2, "title": "Learn Flask", "done": False}
+]
+
+# Home route
+@app.route('/')
+def home():
+    return "Welcome to the To-Do List API!"
+
+# Get all tasks
+@app.route('/tasks', methods=['GET'])
+def get_tasks():
+    return jsonify({"tasks": tasks})
+
+# Get a single task by ID
+@app.route('/tasks/<int:task_id>', methods=['GET'])
+def get_task(task_id):
+    task = next((task for task in tasks if task["id"] == task_id), None)
+    if task:
+        return jsonify(task)
+    return jsonify({"error": "Task not found"}), 404
+
+# Add a new task
+@app.route('/tasks', methods=['POST'])
+def add_task():
+    data = request.get_json()
+    if not data or "title" not in data:
+        return jsonify({"error": "Bad request, 'title' required"}), 400
+
+    new_task = {
+        "id": tasks[-1]["id"] + 1 if tasks else 1,
+        "title": data["title"],
+        "done": False
+    }
+    tasks.append(new_task)
+    return jsonify(new_task), 201
+
+# Update a task
+@app.route('/tasks/<int:task_id>', methods=['PUT'])
+def update_task(task_id):
+    data = request.get_json()
+    task = next((task for task in tasks if task["id"] == task_id), None)
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    task["title"] = data.get("title", task["title"])
+    task["done"] = data.get("done", task["done"])
+    return jsonify(task)
+
+# Delete a task
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    global tasks
+    new_tasks = [task for task in tasks if task["id"] != task_id]
+    if len(new_tasks) == len(tasks):
+        return jsonify({"error": "Task not found"}), 404
+    tasks = new_tasks
+    return jsonify({"message": f"Task {task_id} deleted"}), 200
+
+# Run the app
+if __name__ == '__main__':
+    app.run(debug=True)
