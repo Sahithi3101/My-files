@@ -1,0 +1,38 @@
+
+SQL
+
+SELECT customer_id, COUNT(*) AS order_count
+FROM Orders
+GROUP BY customer_id
+ORDER BY order_count DESC
+LIMIT 1 OFFSET (n - 1);
+
+
+
+Python
+
+import pandas as pd
+
+# Sample data
+data = [
+    {'customer_id': 1, 'order_id': 101},
+    {'customer_id': 2, 'order_id': 102},
+    {'customer_id': 1, 'order_id': 103},
+    {'customer_id': 3, 'order_id': 104},
+    {'customer_id': 2, 'order_id': 105},
+    {'customer_id': 1, 'order_id': 106},
+]
+
+df = pd.DataFrame(data)
+
+# Count orders per customer
+order_counts = df.groupby('customer_id').size().reset_index(name='order_count')
+
+# Sort and get nth highest (n = 2, for example)
+n = 2
+nth_highest = order_counts.sort_values(by='order_count', ascending=False).iloc[n-1]
+
+print(nth_highest)
+
+
+
