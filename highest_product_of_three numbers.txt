@@ -1,0 +1,10 @@
+def highest_product_of_three(nums):
+    if len(nums) < 3:
+        raise ValueError("Need at least 3 numbers")
+
+    nums.sort()
+    
+    return max(
+        nums[-1] * nums[-2] * nums[-3],   # Three largest numbers
+        nums[0] * nums[1] * nums[-1]      # Two smallest and the largest
+    )
