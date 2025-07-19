@@ -1,0 +1,62 @@
+# ===== main.py =====
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
+
+app = FastAPI()
+
+# In-memory list to store courses
+courses = []
+
+# Course schema
+class Course(BaseModel):
+    title: str
+    description: str
+    instructor: str
+    curriculum: List[str]
+
+# Endpoint to add a course
+@app.post("/courses/add")
+def add_course(course: Course):
+    courses.append(course)
+    return {
+        "message": "Course added successfully",
+        "course": course
+    }
+
+# Endpoint to get all courses
+@app.get("/courses")
+def get_all_courses():
+    return courses
+
+
+"""
+======= HOW TO RUN =======
+
+1. Create a folder and save this file as main.py
+
+2. (Optional) Create virtual environment:
+   - Windows: python -m venv venv && venv\Scripts\activate
+   - Mac/Linux: python3 -m venv venv && source venv/bin/activate
+
+3. Install FastAPI and Uvicorn:
+   pip install fastapi uvicorn
+
+4. Run the app:
+   uvicorn main:app --reload
+
+5. Open browser and test:
+   - Docs: http://127.0.0.1:8000/docs
+   - Add course: POST /courses/add
+   - View courses: GET /courses
+
+6. Sample JSON for POST /courses/add:
+{
+  "title": "Python Basics",
+  "description": "Learn Python from scratch",
+  "instructor": "Sahithi",
+  "curriculum": ["Intro", "Data Types", "Loops", "Functions"]
+}
+
+"""
