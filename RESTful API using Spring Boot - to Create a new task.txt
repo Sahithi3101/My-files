@@ -1,0 +1,69 @@
+# main.py
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import List
+from uuid import uuid4, UUID
+from datetime import date
+
+app = FastAPI(title="Task Manager API")
+
+# In-memory database
+tasks_db = []
+
+# Task model
+class Task(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    title: str
+    description: str
+    due_date: date
+    priority: str  # Can be LOW, MEDIUM, HIGH
+
+# Create a new task
+@app.post("/tasks", response_model=Task)
+def create_task(task: Task):
+    tasks_db.append(task)
+    return task
+
+# Get all tasks
+@app.get("/tasks", response_model=List[Task])
+def get_tasks():
+    return tasks_db
+
+# Get a specific task by ID
+@app.get("/tasks/{task_id}", response_model=Task)
+def get_task_by_id(task_id: UUID):
+    for task in tasks_db:
+        if task.id == task_id:
+            return task
+    raise HTTPException(status_code=404, detail="Task not found")
+
+# Delete a task by ID
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: UUID):
+    for i, task in enumerate(tasks_db):
+        if task.id == task_id:
+            del tasks_db[i]
+            return {"message": "Task deleted successfully"}
+    raise HTTPException(status_code=404, detail="Task not found")
+
+
+"""
+==============================
+🚀 HOW TO RUN THIS APP LOCALLY
+==============================
+
+1. Install required packages:
+   pip install fastapi uvicorn
+
+2. Save this code to a file called:
+   main.py
+
+3. Run the FastAPI app:
+   uvicorn main:app --reload
+
+4. Open your browser and go to:
+   http://localhost:8000/docs
+
+You’ll be able to test POST, GET, and DELETE operations easily from the Swagger UI!
+"""
